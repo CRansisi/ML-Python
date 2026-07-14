@@ -4,35 +4,35 @@ df = pd.read_csv("C:/Users/dcsuser/Desktop/2022csc016/student_data.csv")
 print("Display few rows: ")
 print(df.head())
 
-print('Description: ', df.describe())
-print('Number of rows and columns: ', df.shape)
+print('\nDescription: ', df.describe())
+print('\nNumber of rows and columns: ', df.shape)
 
 # Remove fully repeated rows.
 df1 = df.drop_duplicates(inplace=True)
-print("Duplicates removed.")
+print("\n---Duplicates removed---")
 print(df1)
 
 # If the same student appears multiple times, keep only the first entry.
 df = df.drop_duplicates(subset=['Student_ID'], keep='first')
-print("Duplicates removed.")
+print("\n---Duplicates removed---")
 print(df)
 
 # Fix Inconsistemt Formatting
 df['Gender'] = df['Gender'].str.lower().str.strip()
 gender_map = {'male': 'Male', 'female': 'Female', 'f': 'Female', 'm': 'Male'}
 df['Gender'] = df['Gender'].map(gender_map)
-print("Formatting standarized.")
+print("\n---Formatting standarized---")
 print(df)
 
 # Fix Incorrect Data Types
 df['Age'] = pd.to_numeric(df['Age'], errors='coerce')
-print("Correct Data Types")
+print("\n---Correct Data Types---")
 print(df)
 
 # Conver to numeric and coerce - if conversion fails, force to mark the value as missing (NaN).
 import numpy as np
 df['Department'] = df['Department'].replace('0', np.nan) # replace numeric value 0 as string 'nan' becuase fill missing value need that column data with same data type
-print("Data Type corrected.")
+print("\n---Data Type corrected---")
 print(df)
 
 # Fill missing values
@@ -42,12 +42,12 @@ df['Attendance'] = df['Attendance'].fillna(df['Attendance'].mean())
 df['Department'] = df['Department'].fillna(df['Department'].mode()[0]) # for catagorical data handling use 'mode'
 # fillna - "Fill missing values." It replace NaN with another value.
 # mode()[0] - first mode value
-print("Missing values handling")
+print("\n---Missing values handling---")
 print(df)
 
 # Handle Noisy Data
 df['Department'] = df['Department'].replace('Computer Since', 'Computer Science')
-print("Noisy data cleaned.")
+print("\n---Noisy data cleaned---")
 print(df)
 
 # Handliing outlier in Salary
@@ -65,7 +65,7 @@ df['Salary'] = np.where(
         df['Salary']
     )
 )
-print("Outlier salary corrected.")
+print("\n---Outlier salary corrected---")
 print(df)
 
 # Handliing outlier in Age
@@ -83,18 +83,37 @@ df['Age'] = np.where(
         df['Age']
     )
 )
-print("Outlier Age corrected.")
+print("\n---Outlier Age corrected---")
 print(df)
 
 # Feature Scaling
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 scaler_minmax = MinMaxScaler()
 df['Attendance_Normalixzed'] = scaler_minmax.fit_transform(df[['Attendance']])
-print("Min Max Scaler.")
+print("\n---Min Max Scaler---")
 print(df)
 
 # Standardization (Z-score) on Salary (Mean=0, Std=1)
 scaler_std = StandardScaler()
 df['Salary_Standardized'] = scaler_std.fit_transform(df[['Salary']])
-print("Standard Scaler.")
+print("\n---Standard Scaler---")
 print(df)
+
+# Encoding categorical data
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, LabelEncoder
+
+# Lable Encoding
+le = LabelEncoder()
+df['Department'] = le.fit_transform(df['Department'])
+print("\n---Label Encoded---")
+print(df)
+
+# One-Hot Encoding for Norminal Data (Gender & City)
+df = pd.get_dummies(df, columns=['Gender'], dtype=int)
+print("\n---After Categorical Encoding---")
+print(df.info())
+
+# Save Cleaned Dataset
+df.to_csv('C:/Users/dcsuser/Desktop/2022csc016/student_data_cleaned.csv', index=False)
+# index = False - "Do not save the extra index column."
+print("\n Cleaned dataset saved as 'Student_data_cleaned.csv'\n")
